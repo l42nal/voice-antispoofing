@@ -1,0 +1,11 @@
+instance_transforms:
+  train: null
+  inference: null
+
+batch_transforms:
+  audio:
+    _target_: src.transforms.STFTTransform
+    n_fft: 512
+    hop_length: 160
+    win_length: 400
+    eps: 1e-6

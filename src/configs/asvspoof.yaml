@@ -4,7 +4,7 @@ defaults:
   - metrics: example
   - datasets: asvspoof
   - dataloader: asvspoof
-  - transforms: example
+  - transforms: asvspoof
   - _self_
 
 optimizer:
