@@ -8,13 +8,13 @@ batch_transforms:
       _target_: src.transforms.STFTTransform
       n_fft: 512
       hop_length: 160
-      win_length: 400
-      eps: 1e-6
+      win_length: 320
+      max_frames: 600
 
   inference:
     audio:
       _target_: src.transforms.STFTTransform
       n_fft: 512
       hop_length: 160
-      win_length: 400
-      eps: 1e-6
+      win_length: 320
+      max_frames: 600
