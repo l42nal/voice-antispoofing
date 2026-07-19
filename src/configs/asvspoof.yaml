@@ -20,15 +20,16 @@ loss_function:
   _target_: src.loss.ExampleLoss
 
 trainer:
-  log_step: 50
-  n_epochs: 100
-  epoch_len: 500
+  log_step: 1
+  n_epochs: 1
+  epoch_len: 5
   device_tensors: ["audio", "audio_length", "labels"]
   resume_from: null
   device: auto
-  override: False
-  monitor: "max test_MulticlassAccuracy"
+  override: True
+  monitor: "max val_MulticlassAccuracy"
   save_period: 5
+  val_epoch_len: null
   early_stop: ${trainer.n_epochs}
   save_dir: "saved"
   seed: 1

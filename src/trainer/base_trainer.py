@@ -28,6 +28,7 @@ class BaseTrainer:
         logger,
         writer,
         epoch_len=None,
+        val_epoch_len=None,
         skip_oom=True,
         batch_transforms=None,
     ):
@@ -81,7 +82,7 @@ class BaseTrainer:
             # iteration-based training
             self.train_dataloader = inf_loop(self.train_dataloader)
             self.epoch_len = epoch_len
-
+        self.val_epoch_len = val_epoch_len
         self.evaluation_dataloaders = {
             k: v for k, v in dataloaders.items() if k != "train"
         }
@@ -252,32 +253,36 @@ class BaseTrainer:
     def _evaluation_epoch(self, epoch, part, dataloader):
         """
         Evaluate model on the partition after training for an epoch.
-
-        Args:
-            epoch (int): current training epoch.
-            part (str): partition to evaluate on
-            dataloader (DataLoader): dataloader for the partition.
-        Returns:
-            logs (dict): logs that contain the information about evaluation.
         """
         self.is_train = False
         self.model.eval()
         self.evaluation_metrics.reset()
+
+        if self.val_epoch_len is None:
+            evaluation_len = len(dataloader)
+        else:
+            evaluation_len = min(self.val_epoch_len, len(dataloader))
+
         with torch.no_grad():
             for batch_idx, batch in tqdm(
                 enumerate(dataloader),
                 desc=part,
-                total=len(dataloader),
+                total=evaluation_len,
             ):
                 batch = self.process_batch(
                     batch,
                     metrics=self.evaluation_metrics,
                 )
+
+                if (
+                    self.val_epoch_len is not None
+                    and batch_idx + 1 >= self.val_epoch_len
+                ):
+                    break
+
             self.writer.set_step(epoch * self.epoch_len, part)
             self._log_scalars(self.evaluation_metrics)
-            self._log_batch(
-                batch_idx, batch, part
-            )  # log only the last batch during inference
+            self._log_batch(batch_idx, batch, part)
 
         return self.evaluation_metrics.result()
 
