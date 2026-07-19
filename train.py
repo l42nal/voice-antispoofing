@@ -63,6 +63,7 @@ def main(config):
         config=config,
         device=device,
         dataloaders=dataloaders,
+        val_epoch_len=config.trainer.val_epoch_len,
         epoch_len=epoch_len,
         logger=logger,
         writer=writer,
