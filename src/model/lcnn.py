@@ -15,34 +15,61 @@ class LCNNBackbone(nn.Module):
                 kernel_size=5,
                 padding=2,
             ),
-            nn.MaxPool2d(2, 2),
-            LCNNBlock(
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            MFMConv2d(
                 in_channels=32,
-                hidden_channels=32,
+                out_channels=32,
+                kernel_size=1,
+            ),
+            nn.BatchNorm2d(32),
+            MFMConv2d(
+                in_channels=32,
                 out_channels=48,
+                kernel_size=3,
+                padding=1,
+            ),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.BatchNorm2d(48),
+            MFMConv2d(
+                in_channels=48,
+                out_channels=48,
+                kernel_size=1,
             ),
             nn.BatchNorm2d(48),
-            nn.MaxPool2d(2, 2),
-            LCNNBlock(
+            MFMConv2d(
                 in_channels=48,
-                hidden_channels=48,
                 out_channels=64,
+                kernel_size=3,
+                padding=1,
             ),
-            nn.MaxPool2d(2, 2),
-            LCNNBlock(
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            MFMConv2d(
                 in_channels=64,
-                hidden_channels=64,
+                out_channels=64,
+                kernel_size=1,
+            ),
+            nn.BatchNorm2d(64),
+            MFMConv2d(
+                in_channels=64,
                 out_channels=32,
+                kernel_size=3,
+                padding=1,
             ),
             nn.BatchNorm2d(32),
-            LCNNBlock(
+            MFMConv2d(
                 in_channels=32,
-                hidden_channels=32,
                 out_channels=32,
+                kernel_size=1,
             ),
             nn.BatchNorm2d(32),
-            nn.MaxPool2d(2, 2),
+            MFMConv2d(
+                in_channels=32,
+                out_channels=32,
+                kernel_size=3,
+                padding=1,
+            ),
+            nn.MaxPool2d(kernel_size=2, stride=2),
         )
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.features(x)
