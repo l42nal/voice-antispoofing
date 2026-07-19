@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from itertools import islice
 
 import torch
 from numpy import inf
@@ -83,8 +84,6 @@ class BaseTrainer:
             self.train_dataloader = inf_loop(self.train_dataloader)
             self.epoch_len = epoch_len
         self.val_epoch_len = val_epoch_len
-        print("DEBUG val_epoch_len argument:", val_epoch_len)
-        print("DEBUG self.val_epoch_len:", self.val_epoch_len)
         self.evaluation_dataloaders = {
             k: v for k, v in dataloaders.items() if k != "train"
         }
@@ -253,25 +252,20 @@ class BaseTrainer:
         return logs
 
     def _evaluation_epoch(self, epoch, part, dataloader):
-        """
-        Evaluate model on the partition after training for an epoch.
-        """
         self.is_train = False
         self.model.eval()
         self.evaluation_metrics.reset()
-        print(
-            f"DEBUG evaluation: part={part}, "
-            f"val_epoch_len={self.val_epoch_len}, "
-            f"dataloader_len={len(dataloader)}"
-        )
+
         if self.val_epoch_len is None:
             evaluation_len = len(dataloader)
+            evaluation_dataloader = dataloader
         else:
             evaluation_len = min(self.val_epoch_len, len(dataloader))
+            evaluation_dataloader = islice(dataloader, evaluation_len)
 
         with torch.no_grad():
             for batch_idx, batch in tqdm(
-                enumerate(dataloader),
+                enumerate(evaluation_dataloader),
                 desc=part,
                 total=evaluation_len,
             ):
@@ -279,12 +273,6 @@ class BaseTrainer:
                     batch,
                     metrics=self.evaluation_metrics,
                 )
-
-                if (
-                    self.val_epoch_len is not None
-                    and batch_idx + 1 >= self.val_epoch_len
-                ):
-                    break
 
             self.writer.set_step(epoch * self.epoch_len, part)
             self._log_scalars(self.evaluation_metrics)
