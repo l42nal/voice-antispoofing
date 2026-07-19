@@ -18,3 +18,32 @@ class MFM(nn.Module):
         x, _ = x.max(dim=2)
 
         return x
+
+
+class MFMConv2d(nn.Module):
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        kernel_size: int | tuple[int, int],
+        stride: int | tuple[int, int] = 1,
+        padding: int | tuple[int, int] = 0,
+        bias: bool = True,
+    ):
+        super().__init__()
+
+        self.conv = nn.Conv2d(
+            in_channels=in_channels,
+            out_channels=out_channels * 2,
+            kernel_size=kernel_size,
+            stride=stride,
+            padding=padding,
+            bias=bias,
+        )
+        self.mfm = MFM()
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.conv(x)
+        x = self.mfm(x)
+
+        return x
