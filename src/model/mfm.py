@@ -4,20 +4,14 @@ from torch import nn
 
 class MFM(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        if x.shape[1] % 2 != 0:
-            raise ValueError("Number of channels must be even, " f"got {x.shape[1]}")
+        channels = x.shape[1]
 
-        x = x.reshape(
-            x.shape[0],
-            x.shape[1] // 2,
-            2,
-            x.shape[2],
-            x.shape[3],
-        )
+        if channels % 2 != 0:
+            raise ValueError("Number of channels must be even, " f"got {channels}")
 
-        x, _ = x.max(dim=2)
+        first_half, second_half = torch.chunk(x, chunks=2, dim=1)
 
-        return x
+        return torch.maximum(first_half, second_half)
 
 
 class MFMConv2d(nn.Module):
