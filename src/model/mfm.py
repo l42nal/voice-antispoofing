@@ -70,3 +70,24 @@ class LCNNBlock(nn.Module):
         x = self.conv2(x)
 
         return x
+
+
+class MFMLinear(nn.Module):
+    def __init__(
+        self,
+        in_features: int,
+        out_features: int,
+        bias: bool = True,
+    ):
+        super().__init__()
+
+        self.linear = nn.Linear(
+            in_features=in_features,
+            out_features=out_features * 2,
+            bias=bias,
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        first_half, second_half = torch.chunk(x, chunks=2, dim=1)
+
+        return torch.maximum(first_half, second_half)
