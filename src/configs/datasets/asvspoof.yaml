@@ -2,10 +2,10 @@ train:
   _target_: src.datasets.ASVspoofDataset
   protocol_path: /kaggle/input/datasets/awsaf49/asvpoof-2019-dataset/LA/LA/ASVspoof2019_LA_cm_protocols/ASVspoof2019.LA.cm.train.trn.txt
   audio_dir: /kaggle/input/datasets/awsaf49/asvpoof-2019-dataset/LA/LA/ASVspoof2019_LA_train/flac
-  instance_transforms: ${transforms.instance_transforms.train}
+  instance_transforms: null
 
 val:
   _target_: src.datasets.ASVspoofDataset
   protocol_path: /kaggle/input/datasets/awsaf49/asvpoof-2019-dataset/LA/LA/ASVspoof2019_LA_cm_protocols/ASVspoof2019.LA.cm.dev.trl.txt
   audio_dir: /kaggle/input/datasets/awsaf49/asvpoof-2019-dataset/LA/LA/ASVspoof2019_LA_dev/flac
-  instance_transforms: ${transforms.instance_transforms.inference}
+  instance_transforms: null
