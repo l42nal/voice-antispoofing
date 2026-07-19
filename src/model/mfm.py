@@ -88,6 +88,12 @@ class MFMLinear(nn.Module):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        first_half, second_half = torch.chunk(x, chunks=2, dim=1)
+        x = self.linear(x)
+
+        first_half, second_half = torch.chunk(
+            x,
+            chunks=2,
+            dim=1,
+        )
 
         return torch.maximum(first_half, second_half)
