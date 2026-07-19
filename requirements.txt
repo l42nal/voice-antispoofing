@@ -1,4 +1,5 @@
 torch==2.2.0
+torchaudio==2.2.0
 torchvision==0.17.0
 torchmetrics
 numpy==1.26.4
