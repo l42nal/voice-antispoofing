@@ -83,6 +83,8 @@ class BaseTrainer:
             self.train_dataloader = inf_loop(self.train_dataloader)
             self.epoch_len = epoch_len
         self.val_epoch_len = val_epoch_len
+        print("DEBUG val_epoch_len argument:", val_epoch_len)
+        print("DEBUG self.val_epoch_len:", self.val_epoch_len)
         self.evaluation_dataloaders = {
             k: v for k, v in dataloaders.items() if k != "train"
         }
@@ -257,7 +259,11 @@ class BaseTrainer:
         self.is_train = False
         self.model.eval()
         self.evaluation_metrics.reset()
-
+        print(
+            f"DEBUG evaluation: part={part}, "
+            f"val_epoch_len={self.val_epoch_len}, "
+            f"dataloader_len={len(dataloader)}"
+        )
         if self.val_epoch_len is None:
             evaluation_len = len(dataloader)
         else:
