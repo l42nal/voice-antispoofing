@@ -47,3 +47,32 @@ class MFMConv2d(nn.Module):
         x = self.mfm(x)
 
         return x
+
+
+class LCNNBlock(nn.Module):
+    def __init__(
+        self,
+        in_channels: int,
+        hidden_channels: int,
+        out_channels: int,
+    ):
+        super().__init__()
+
+        self.conv1 = MFMConv2d(
+            in_channels=in_channels,
+            out_channels=hidden_channels,
+            kernel_size=1,
+        )
+
+        self.conv2 = MFMConv2d(
+            in_channels=hidden_channels,
+            out_channels=out_channels,
+            kernel_size=3,
+            padding=1,
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.conv1(x)
+        x = self.conv2(x)
+
+        return x
