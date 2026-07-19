@@ -99,8 +99,12 @@ class LCNN(nn.Module):
             ),
         )
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = self.backbone(x)
-        x = self.classifier(x)
+    def forward(
+        self,
+        audio: torch.Tensor,
+        **batch,
+    ) -> dict[str, torch.Tensor]:
+        logits = self.backbone(audio)
+        logits = self.classifier(logits)
 
-        return x
+        return {"logits": logits}
