@@ -1,0 +1,4 @@
+_target_: src.model.lcnn.LCNN
+
+num_classes: 2
+dropout: 0.75

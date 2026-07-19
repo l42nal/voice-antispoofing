@@ -1,5 +1,10 @@
-from src.model.baseline_model import BaselineModel
+from src.model.lcnn import LCNN, LCNNBackbone
+from src.model.mfm import MFM, MFMConv2d, MFMLinear
 
 __all__ = [
-    "BaselineModel",
+    "LCNN",
+    "LCNNBackbone",
+    "MFM",
+    "MFMConv2d",
+    "MFMLinear",
 ]
