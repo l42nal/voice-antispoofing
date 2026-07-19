@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from src.model.mfm import LCNNBlock, MFMConv2d
+from src.model.mfm import LCNNBlock, MFMConv2d, MFMLinear
 
 
 class LCNNBackbone(nn.Module):
@@ -73,3 +73,34 @@ class LCNNBackbone(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.features(x)
+
+
+class LCNN(nn.Module):
+    def __init__(
+        self,
+        num_classes: int = 2,
+        dropout: float = 0.75,
+    ):
+        super().__init__()
+
+        self.backbone = LCNNBackbone()
+
+        self.classifier = nn.Sequential(
+            nn.Flatten(),
+            MFMLinear(
+                in_features=18944,
+                out_features=80,
+            ),
+            nn.Dropout(p=dropout),
+            nn.BatchNorm1d(80),
+            nn.Linear(
+                in_features=80,
+                out_features=num_classes,
+            ),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.backbone(x)
+        x = self.classifier(x)
+
+        return x
