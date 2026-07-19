@@ -1,5 +1,5 @@
 defaults:
-  - model: baseline
+  - model: lcnn
   - writer: wandb
   - metrics: example
   - datasets: asvspoof
