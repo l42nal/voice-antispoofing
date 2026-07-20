@@ -1,10 +1,10 @@
 defaults:
-  - model: baseline
+  - model: lcnn
   - writer: wandb
   - metrics: example
-  - datasets: example
-  - dataloader: example
-  - transforms: example
+  - datasets: asvspoof
+  - dataloader: asvspoof
+  - transforms: asvspoof
   - _self_
 optimizer:
   _target_: torch.optim.Adam
