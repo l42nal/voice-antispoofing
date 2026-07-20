@@ -11,4 +11,4 @@ inferencer:
   device: auto
   save_path: "asvspoof_eval"
   seed: 1
-  from_pretrained: "saved/model_best.pth"
+  from_pretrained: "saved/testing/model_best.pth"
