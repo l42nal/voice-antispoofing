@@ -6,26 +6,38 @@ defaults:
   - dataloader: asvspoof
   - transforms: asvspoof
   - _self_
+
 optimizer:
   _target_: torch.optim.Adam
   lr: 3e-4
+
 lr_scheduler:
   _target_: torch.optim.lr_scheduler.StepLR
   gamma: 0.9
-  step_size: ${trainer.epoch_len}
+  step_size: 1586
+
 loss_function:
   _target_: src.loss.ExampleLoss
+
 trainer:
   log_step: 50
-  n_epochs: 20
+
+  n_epochs: 1
   epoch_len: null
   val_epoch_len: null
-  device_tensors: ["data_object", "labels"] # which tensors should be on device (ex. GPU)
-  resume_from: null # null or path to the checkpoint dir with *.pth and config.yaml
-  device: auto # device name or "auto"
-  override: False # if True, will override the previous run with the same name
-  monitor: "max test_MulticlassAccuracy" # "off" or "max/min metric_name", i.e. our goal is to maximize/minimize metric
-  save_period: 5 # checkpoint each save_period epochs in addition to the best epoch
-  early_stop: ${trainer.n_epochs} # epochs for early stopping
+
+  device_tensors:
+    - audio
+    - audio_length
+    - labels
+
+  resume_from: null
+  device: auto
+  override: true
+
+  monitor: "min val_loss"
+  save_period: 5
+  early_stop: ${trainer.n_epochs}
+
   save_dir: "saved"
   seed: 1

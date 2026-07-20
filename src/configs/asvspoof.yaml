@@ -21,7 +21,7 @@ loss_function:
 
 trainer:
   log_step: 1
-  n_epochs: 20
+  n_epochs: 1
   epoch_len: null
   val_epoch_len: null
   device_tensors: ["audio", "audio_length", "labels"]
