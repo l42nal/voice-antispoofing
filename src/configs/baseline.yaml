@@ -22,7 +22,7 @@ loss_function:
 trainer:
   log_step: 50
 
-  n_epochs: 1
+  n_epochs: 20
   epoch_len: null
   val_epoch_len: null
 
