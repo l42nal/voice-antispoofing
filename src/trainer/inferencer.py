@@ -65,7 +65,7 @@ class Inferencer(BaseTrainer):
         # path definition
 
         self.save_path = save_path
-
+        self.prediction_rows = {}
         # define metrics
         self.metrics = metrics
         if self.metrics is not None:
@@ -129,27 +129,38 @@ class Inferencer(BaseTrainer):
         # Some saving logic. This is an example
         # Use if you need to save predictions on disk
 
-        batch_size = batch["logits"].shape[0]
-        current_id = batch_idx * batch_size
+        # batch_size = batch["logits"].shape[0]
+        # current_id = batch_idx * batch_size
+        #
+        # for i in range(batch_size):
+        #     # clone because of
+        #     # https://github.com/pytorch/pytorch/issues/1995
+        #     logits = batch["logits"][i].clone()
+        #     label = batch["labels"][i].clone()
+        #     pred_label = logits.argmax(dim=-1)
+        #
+        #     output_id = current_id + i
+        #
+        #     output = {
+        #         "pred_label": pred_label,
+        #         "label": label,
+        #     }
+        #
+        #     if self.save_path is not None:
+        #         # you can use safetensors or other lib here
+        #         torch.save(output, self.save_path / part / f"output_{output_id}.pth")
+        logits = batch["logits"]
 
-        for i in range(batch_size):
-            # clone because of
-            # https://github.com/pytorch/pytorch/issues/1995
-            logits = batch["logits"][i].clone()
-            label = batch["labels"][i].clone()
-            pred_label = logits.argmax(dim=-1)
+        scores = logits[:, 1] - logits[:, 0]
+        scores = scores.detach().cpu().tolist()
 
-            output_id = current_id + i
+        utterance_ids = batch["utterance_id"]
 
-            output = {
-                "pred_label": pred_label,
-                "label": label,
-            }
+        if part not in self.prediction_rows:
+            self.prediction_rows[part] = []
 
-            if self.save_path is not None:
-                # you can use safetensors or other lib here
-                torch.save(output, self.save_path / part / f"output_{output_id}.pth")
-
+        for utterance_id, score in zip(utterance_ids, scores):
+            self.prediction_rows[part].append((utterance_id, score))
         return batch
 
     def _inference_part(self, part, dataloader):
@@ -165,8 +176,9 @@ class Inferencer(BaseTrainer):
 
         self.is_train = False
         self.model.eval()
-
-        self.evaluation_metrics.reset()
+        self.prediction_rows[part] = []
+        if self.evaluation_metrics is not None:
+            self.evaluation_metrics.reset()
 
         # create Save dir
         if self.save_path is not None:
@@ -184,5 +196,15 @@ class Inferencer(BaseTrainer):
                     part=part,
                     metrics=self.evaluation_metrics,
                 )
+        if self.save_path is not None:
+            output_file = self.save_path / f"{part}.csv"
 
-        return self.evaluation_metrics.result()
+            with output_file.open("w", encoding="utf-8") as file:
+                for utterance_id, score in self.prediction_rows[part]:
+                    file.write(f"{utterance_id},{score}\n")
+
+            print(f"Saved predictions to {output_file}")
+        if self.evaluation_metrics is not None:
+            return self.evaluation_metrics.result()
+
+        return {}

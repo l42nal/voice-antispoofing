@@ -1,0 +1,5 @@
+eval:
+  _target_: src.datasets.ASVspoofDataset
+  protocol_path: /kaggle/input/datasets/awsaf49/asvpoof-2019-dataset/LA/LA/ASVspoof2019_LA_cm_protocols/ASVspoof2019.LA.cm.eval.trl.txt
+  audio_dir: /kaggle/input/datasets/awsaf49/asvpoof-2019-dataset/LA/LA/ASVspoof2019_LA_eval/flac
+  instance_transforms: null

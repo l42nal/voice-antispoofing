@@ -21,13 +21,13 @@ loss_function:
 
 trainer:
   log_step: 1
-  n_epochs: 1
-  epoch_len: 5
+  n_epochs: 20
+  epoch_len: null
   device_tensors: ["audio", "audio_length", "labels"]
   resume_from: null
   device: auto
   override: True
-  monitor: "max val_MulticlassAccuracy"
+  monitor: "min val_loss"
   save_period: 5
   val_epoch_len: null
   early_stop: ${trainer.n_epochs}
