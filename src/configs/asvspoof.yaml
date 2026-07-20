@@ -23,13 +23,13 @@ trainer:
   log_step: 1
   n_epochs: 20
   epoch_len: null
+  val_epoch_len: null
   device_tensors: ["audio", "audio_length", "labels"]
   resume_from: null
   device: auto
   override: True
   monitor: "min val_loss"
   save_period: 5
-  val_epoch_len: null
   early_stop: ${trainer.n_epochs}
   save_dir: "saved"
   seed: 1
