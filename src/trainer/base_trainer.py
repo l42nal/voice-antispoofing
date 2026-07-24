@@ -184,7 +184,7 @@ class BaseTrainer:
             )
 
             if epoch % self.save_period == 0 or best:
-                self._save_checkpoint(epoch, save_best=best, only_best=True)
+                self._save_checkpoint(epoch, save_best=best, only_best=False)
 
             if stop_process:  # early_stop
                 break
