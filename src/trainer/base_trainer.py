@@ -7,6 +7,7 @@ from torch.nn.utils import clip_grad_norm_
 from tqdm.auto import tqdm
 
 from src.datasets.data_utils import inf_loop
+from src.metrics.eer import compute_eer
 from src.metrics.tracker import MetricTracker
 from src.utils.io_utils import ROOT_PATH
 
@@ -263,6 +264,10 @@ class BaseTrainer:
             evaluation_len = min(self.val_epoch_len, len(dataloader))
             evaluation_dataloader = islice(dataloader, evaluation_len)
 
+        all_scores = []
+        all_labels = []
+        last_batch = None
+
         with torch.no_grad():
             for batch_idx, batch in tqdm(
                 enumerate(evaluation_dataloader),
@@ -273,12 +278,40 @@ class BaseTrainer:
                     batch,
                     metrics=self.evaluation_metrics,
                 )
+                last_batch = batch
+                scores = batch["logits"][:, 1] - batch["logits"][:, 0]
+
+                all_scores.append(scores.detach().cpu())
+                all_labels.append(batch["labels"].detach().cpu())
+
+            if last_batch is None:
+                raise RuntimeError(
+                    f"Evaluation dataloader '{part}' produced no batches."
+                )
+
+            all_scores = torch.cat(all_scores).numpy()
+            all_labels = torch.cat(all_labels).numpy()
+
+            bonafide_scores = all_scores[all_labels == 1]
+            spoof_scores = all_scores[all_labels == 0]
+
+            eer, _ = compute_eer(
+                bonafide_scores=bonafide_scores,
+                spoof_scores=spoof_scores,
+            )
+            eer_percent = eer * 100.0
 
             self.writer.set_step(epoch * self.epoch_len, part)
             self._log_scalars(self.evaluation_metrics)
-            self._log_batch(batch_idx, batch, part)
 
-        return self.evaluation_metrics.result()
+            self.writer.add_scalar("EER", eer_percent)
+
+            self._log_batch(batch_idx, last_batch, part)
+
+        result = self.evaluation_metrics.result()
+        result["EER"] = eer_percent
+
+        return result
 
     def _monitor_performance(self, logs, not_improved_count):
         """

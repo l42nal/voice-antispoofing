@@ -22,7 +22,7 @@ loss_function:
 trainer:
   log_step: 50
 
-  n_epochs: 20
+  n_epochs: 1
   epoch_len: null
   val_epoch_len: null
 
@@ -35,8 +35,8 @@ trainer:
   device: auto
   override: true
 
-  monitor: "min val_loss"
-  save_period: 5
+  monitor: "min val_EER"
+  save_period: 1
   early_stop: ${trainer.n_epochs}
 
   save_dir: "saved"
